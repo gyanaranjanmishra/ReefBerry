@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{{ tank_name }}</h1>
+    <p class="muted">{{ "%g"|format(volume) }} L system</p>
+  </div>
+  <p class="muted small" id="updated" aria-live="polite">Reading outlets…</p>
+</header>
+
+<p class="flash flash-warn" id="sim-note" hidden>Simulation mode: these are pretend plugs. Nothing on the tank is switched.</p>
+
+<section class="modes" id="modes" aria-label="Modes"
+  data-feed-min="{{ automation.feed_minutes }}" data-rule-min="{{ automation.return_restart_delay_min }}">
+  <div class="mode-bar" data-show="normal">
+    <button class="btn mode-btn" type="button" data-action="feed-start">
+      <span class="mode-title">Feed</span><span class="mode-sub">Wavemakers off {{ automation.feed_minutes }} min</span>
+    </button>
+    <button class="btn mode-btn" type="button" data-action="water-change-start">
+      <span class="mode-title">Water change</span><span class="mode-sub">Pumps, skimmer and ATO off</span>
+    </button>
+  </div>
+  <div class="mode-banner" data-show="feed" hidden>
+    <div><strong>Feeding</strong><span class="muted">Wavemakers back on in <span data-countdown>…</span></span></div>
+    <button class="btn" type="button" data-action="feed-end">End now</button>
+  </div>
+  <div class="mode-banner mode-wc" data-show="water_change" hidden>
+    <div><strong>Water change in progress</strong><span class="muted">Return, wavemakers, skimmer and ATO are off. Off-alerts are paused.</span></div>
+    <button class="btn primary" type="button" data-action="water-change-done">Done, restart</button>
+  </div>
+</section>
+
+<section aria-labelledby="power-h">
+  <h2 id="power-h">Power</h2>
+  {% if outlets %}
+  <ul class="outlets" id="outlets">
+    {% for o in outlets %}
+    <li>
+      <button type="button" class="outlet state-loading" data-id="{{ o.id }}" data-role="{{ o.role }}" data-name="{{ o.display_name }}" disabled>
+        <span class="outlet-art">{{ icon(o.icon or o.role) }}</span>
+        <span class="outlet-foot">
+          <span class="outlet-text">
+            <span class="outlet-name">{{ o.display_name }}</span>
+            <span class="outlet-role muted" data-note>{{ ROLES.get(o.role, "Other") }}</span>
+          </span>
+          <span class="pill" data-pill>…</span>
+        </span>
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No outlets to show. <a href="/settings#devices">Add your power devices</a>.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="activity-h" class="activity">
+  <h2 id="activity-h">Recent activity</h2>
+  <ul id="activity" class="activity-list"><li class="muted">Nothing yet.</li></ul>
+</section>
+
+<dialog id="confirm" class="dialog">
+  <form method="dialog">
+    <p data-msg></p>
+    <div class="row">
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" value="ok" data-ok>Turn off</button>
+    </div>
+  </form>
+</dialog>
+<p class="toast" id="toast" role="alert" hidden></p>
+{% endblock %}
+{% block scripts %}<script>ReefBerry.dashboard(5000);</script>{% endblock %}

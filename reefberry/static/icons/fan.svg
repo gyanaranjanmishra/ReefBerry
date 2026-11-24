@@ -1,0 +1,19 @@
+<svg viewBox="0 0 150 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect x="6" y="6" width="108" height="108" rx="16" fill="#444441"/>
+  <circle cx="60" cy="60" r="46" fill="#2C2C2A"/>
+  <g class="a-spin-fast" fill="#B4B2A9">
+    <path d="M60 60 C56 40 62 22 74 18 C78 34 72 48 60 60 Z"/>
+    <path d="M60 60 C78 50 96 54 100 66 C86 74 72 70 60 60 Z"/>
+    <path d="M60 60 C70 78 66 96 54 100 C46 86 50 72 60 60 Z"/>
+    <path d="M60 60 C42 72 24 70 18 58 C30 48 46 50 60 60 Z"/>
+    <path d="M60 60 C46 46 42 28 50 18 C62 26 64 44 60 60 Z"/>
+  </g>
+  <circle cx="60" cy="60" r="10" fill="#5F5E5A"/>
+  <circle cx="16" cy="16" r="3" fill="#888780"/><circle cx="104" cy="16" r="3" fill="#888780"/>
+  <circle cx="16" cy="104" r="3" fill="#888780"/><circle cx="104" cy="104" r="3" fill="#888780"/>
+  <g fill="none" stroke="#85B7EB" stroke-width="3" stroke-linecap="round">
+    <path class="a-flow" d="M120 40 H146"/>
+    <path class="a-flow" d="M120 60 H148" style="animation-delay:-.3s"/>
+    <path class="a-flow" d="M120 80 H146" style="animation-delay:-.6s"/>
+  </g>
+</svg>

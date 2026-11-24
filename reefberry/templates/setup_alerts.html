@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+{% include "_steps.html" %}
+<section class="card">
+  <h1>Alerts</h1>
+  <p class="muted">Where should ReefBerry tell you when something needs attention, like an outlet left off for more than an hour? You can set this up later in Settings.</p>
+  {% include "_alerts.html" %}
+</section>
+<div class="row between">
+  <a href="/setup/devices">← Back</a>
+  <form method="post" action="/setup/finish">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn primary" type="submit">Finish setup</button>
+  </form>
+</div>
+{% endblock %}

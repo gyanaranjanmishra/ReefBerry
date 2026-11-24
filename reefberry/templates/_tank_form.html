@@ -1,0 +1,10 @@
+<label>Tank name
+  <input id="tank_name" name="tank_name" value="{{ values.tank_name }}" maxlength="60" required placeholder="e.g. Living room reef">
+</label>
+<label>Total system volume <small class="muted">display tank + sump + plumbing, in litres</small>
+  <span class="input-unit">
+    <input id="tank_volume_l" name="tank_volume_l" value="{{ values.tank_volume_l }}" inputmode="decimal" required placeholder="250">
+    <span>L</span>
+  </span>
+  <small class="muted">Used for every dosing calculation. ICP reports may list an older volume; this one always wins.</small>
+</label>

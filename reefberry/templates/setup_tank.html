@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Your tank{% endblock %}
+{% block body_class %}narrow{% endblock %}
+{% block content %}
+{% include "_steps.html" %}
+<section class="card">
+  <h1>Your tank</h1>
+  {% if error %}<p class="flash flash-error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="/setup/tank" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% include "_tank_form.html" %}
+    <button class="btn primary" type="submit">Continue</button>
+  </form>
+</section>
+{% endblock %}

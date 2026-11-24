@@ -1,0 +1,34 @@
+<svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <!-- inlet hose into the bottom cap, outlet elbow from the top cap -->
+  <path d="M6 128 H34" stroke="#888780" stroke-width="6" stroke-linecap="round"/>
+  <path class="a-flow" d="M6 128 H34" stroke="#378ADD" stroke-width="2" stroke-dasharray="3 6"/>
+  <path d="M86 14 H104 q8 0 8 8 V44" stroke="#888780" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path class="a-flow" d="M86 14 H104 q8 0 8 8 V44" stroke="#378ADD" stroke-width="2" fill="none" stroke-dasharray="3 6"/>
+  <!-- clear body -->
+  <rect x="34" y="18" width="52" height="108" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="2"/>
+  <rect x="36" y="30" width="48" height="94" rx="4" fill="#CFE3F7"/>
+  <!-- sponge pads -->
+  <rect x="36" y="30" width="48" height="9" fill="#378ADD" opacity=".55"/>
+  <rect x="36" y="112" width="48" height="10" fill="#378ADD" opacity=".55"/>
+  <!-- rising water -->
+  <g stroke="#ffffff" stroke-width="1.5" fill="none" opacity=".8">
+    <path class="a-flow-up" d="M44 110 V44"/><path class="a-flow-up" d="M76 110 V44" style="animation-delay:-.3s"/>
+  </g>
+  <!-- GFO pellets, gently fluidised -->
+  <g class="a-tumble" fill="#8A3B12">
+    <circle cx="44" cy="104" r="3"/><circle cx="52" cy="108" r="2.6"/><circle cx="60" cy="103" r="3"/><circle cx="68" cy="108" r="2.6"/>
+    <circle cx="76" cy="104" r="3"/><circle cx="48" cy="98" r="2.4"/><circle cx="64" cy="97" r="2.6"/><circle cx="72" cy="98" r="2.2"/>
+  </g>
+  <g class="a-tumble a-tumble-2" fill="#A34E1E">
+    <circle cx="45" cy="88" r="2.4"/><circle cx="56" cy="91" r="2.8"/><circle cx="66" cy="86" r="2.4"/><circle cx="75" cy="90" r="2.2"/>
+    <circle cx="52" cy="82" r="2"/>
+  </g>
+  <g class="a-tumble a-tumble-3" fill="#C26A35">
+    <circle cx="50" cy="74" r="2"/><circle cx="61" cy="72" r="2.2"/><circle cx="70" cy="77" r="1.8"/><circle cx="57" cy="64" r="1.6"/>
+  </g>
+  <!-- caps -->
+  <rect x="30" y="10" width="60" height="14" rx="4" fill="#2C2C2A"/>
+  <rect x="30" y="122" width="60" height="14" rx="4" fill="#2C2C2A"/>
+  <path d="M38 13 V21 M48 13 V21 M58 13 V21 M68 13 V21 M78 13 V21" stroke="#5F5E5A" stroke-width="2"/>
+  <rect x="38" y="44" width="4" height="60" rx="2" fill="#ffffff" opacity=".6"/>
+</svg>

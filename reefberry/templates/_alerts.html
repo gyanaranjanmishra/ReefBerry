@@ -1,0 +1,54 @@
+<form method="post" action="/alerts/save" class="stack-lg">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <input type="hidden" name="back" value="{{ back }}">
+
+  <fieldset class="panel">
+    <legend>Email</legend>
+    <label class="check"><input type="checkbox" id="email_enabled" name="email_enabled" value="1" {% if alerts.email_enabled %}checked{% endif %}> Send alerts by email</label>
+    <label>Email service
+      <select id="smtp_preset" data-presets='{{ presets | tojson }}'>
+        <option value="">Choose to fill in the server details…</option>
+        <option value="gmail">Gmail (needs an app password)</option>
+        <option value="brevo">Brevo</option>
+        <option value="custom">Other / custom</option>
+      </select>
+    </label>
+    <div class="grid-3">
+      <label>Mail server <input id="smtp_host" name="smtp_host" value="{{ alerts.smtp_host }}" placeholder="smtp.gmail.com"></label>
+      <label>Port <input id="smtp_port" name="smtp_port" value="{{ alerts.smtp_port }}" inputmode="numeric"></label>
+      <label>Security
+        <select id="smtp_security" name="smtp_security">
+          <option value="starttls" {% if alerts.smtp_security == "starttls" %}selected{% endif %}>STARTTLS (port 587)</option>
+          <option value="ssl" {% if alerts.smtp_security == "ssl" %}selected{% endif %}>SSL/TLS (port 465)</option>
+          <option value="none" {% if alerts.smtp_security == "none" %}selected{% endif %}>None</option>
+        </select>
+      </label>
+    </div>
+    <div class="grid-2">
+      <label>Login (usually your email address) <input id="smtp_username" name="smtp_username" value="{{ alerts.smtp_username }}" autocomplete="off"></label>
+      <label>Password or app password
+        <input id="smtp_password" name="smtp_password" type="password" autocomplete="off" placeholder="{{ 'Saved, leave blank to keep' if alerts.has_smtp_password else '' }}">
+      </label>
+      <label>Send from <small class="muted">blank = the login</small><input id="email_from" name="email_from" type="email" value="{{ alerts.email_from }}"></label>
+      <label>Send alerts to <input id="email_to" name="email_to" type="email" value="{{ alerts.email_to }}"></label>
+    </div>
+    <p class="muted small">Gmail: turn on 2-Step Verification, then create an app password at myaccount.google.com → Security → App passwords, and paste the 16 letters here.</p>
+    <button class="btn" type="submit" name="action" value="test_email">Save and send a test email</button>
+  </fieldset>
+
+  <fieldset class="panel">
+    <legend>Phone push (ntfy)</legend>
+    <label class="check"><input type="checkbox" id="ntfy_enabled" name="ntfy_enabled" value="1" {% if alerts.ntfy_enabled %}checked{% endif %}> Send alerts as phone notifications</label>
+    <div class="grid-2">
+      <label>Topic <small class="muted">treat it like a password</small><input id="ntfy_topic" name="ntfy_topic" value="{{ alerts.ntfy_topic }}"></label>
+      <label>Server <input id="ntfy_server" name="ntfy_server" value="{{ alerts.ntfy_server }}"></label>
+      <label>Access token <small class="muted">only for private servers</small>
+        <input id="ntfy_token" name="ntfy_token" type="password" autocomplete="off" placeholder="{{ 'Saved, leave blank to keep' if alerts.has_ntfy_token else 'optional' }}">
+      </label>
+    </div>
+    <p class="muted small">Install the free ntfy app on your phone and subscribe to the topic above.</p>
+    <button class="btn" type="submit" name="action" value="test_ntfy">Save and send a test push</button>
+  </fieldset>
+
+  <div class="row"><button class="btn primary" type="submit" name="action" value="save">Save alert settings</button></div>
+</form>

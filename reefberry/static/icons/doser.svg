@@ -1,0 +1,25 @@
+<svg viewBox="0 0 150 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <!-- supplement bottle -->
+  <rect x="6" y="40" width="34" height="76" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="2"/>
+  <rect x="8" y="66" width="30" height="48" rx="4" fill="#FAC775" opacity=".8"/>
+  <rect x="12" y="32" width="22" height="10" rx="3" fill="#5F5E5A"/>
+  <!-- suction tube: bottle to pump head -->
+  <path d="M23 106 V22 q0 -8 8 -8 H70 q8 0 8 8 V34" fill="none" stroke="#B4B2A9" stroke-width="4" stroke-linecap="round"/>
+  <path class="a-flow" d="M23 106 V22 q0 -8 8 -8 H70 q8 0 8 8 V34" fill="none" stroke="#EF9F27" stroke-width="2" stroke-dasharray="3 7"/>
+  <!-- doser body -->
+  <rect x="50" y="34" width="70" height="80" rx="14" fill="#FFFFFF" stroke="#888780" stroke-width="2"/>
+  <rect x="50" y="98" width="70" height="16" rx="8" fill="#D3D1C7"/>
+  <circle class="a-glow" cx="108" cy="46" r="3" fill="#1D9E75"/>
+  <!-- peristaltic pump head with turning rollers -->
+  <circle cx="85" cy="68" r="24" fill="#E6F1FB" stroke="#444441" stroke-width="2.5"/>
+  <path d="M64 80 a24 24 0 1 1 42 0" fill="none" stroke="#B4B2A9" stroke-width="4"/>
+  <g class="a-spin-slow">
+    <circle cx="85" cy="68" r="6" fill="#444441"/>
+    <path d="M85 68 L85 52 M85 68 L99 76 M85 68 L71 76" stroke="#444441" stroke-width="3"/>
+    <circle cx="85" cy="52" r="5" fill="#888780"/><circle cx="99" cy="76" r="5" fill="#888780"/><circle cx="71" cy="76" r="5" fill="#888780"/>
+  </g>
+  <!-- output tube to the tank -->
+  <path d="M106 80 q22 0 24 18 V112" fill="none" stroke="#B4B2A9" stroke-width="4" stroke-linecap="round"/>
+  <path class="a-flow" d="M106 80 q22 0 24 18 V112" fill="none" stroke="#EF9F27" stroke-width="2" stroke-dasharray="3 7"/>
+  <path class="a-drip" d="M130 114 c-3 5 -4 7 -4 9 a4 4 0 0 0 8 0 c0 -2 -1 -4 -4 -9z" fill="#EF9F27"/>
+</svg>

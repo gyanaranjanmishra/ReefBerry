@@ -1,0 +1,12 @@
+<ol class="steps" aria-label="Setup steps">
+  {% set ns = namespace(passed=true) %}
+  {% for key, label in steps %}
+    {% if key == step %}{% set ns.passed = false %}
+    <li class="current" aria-current="step"><span>{{ loop.index }}</span>{{ label }}</li>
+    {% elif ns.passed %}
+    <li class="done"><span>{{ loop.index }}</span>{{ label }}</li>
+    {% else %}
+    <li><span>{{ loop.index }}</span>{{ label }}</li>
+    {% endif %}
+  {% endfor %}
+</ol>

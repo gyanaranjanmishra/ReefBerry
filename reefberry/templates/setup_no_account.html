@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Create your account{% endblock %}
+{% block body_class %}narrow{% endblock %}
+{% block nav %}{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Create your account on the Pi</h1>
+  <p>ReefBerry is installed but has no account yet. For security, the first account can only be created on the Pi itself, so nobody else on your network can claim this dashboard.</p>
+  <p>Connect to the Pi (SSH or Raspberry Pi Connect) and run:</p>
+  <pre class="code">sudo reefberry user add</pre>
+  <p class="muted">Then reload this page and sign in.</p>
+  <p class="muted small">Forgot your password later? Run <code>sudo reefberry user reset-password</code> on the Pi.</p>
+  <p><a class="btn primary" href="/login">I've created it, sign in</a></p>
+</section>
+{% endblock %}

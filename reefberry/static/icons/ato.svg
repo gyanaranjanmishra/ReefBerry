@@ -1,0 +1,16 @@
+<svg viewBox="0 0 130 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect x="8" y="42" width="52" height="88" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="2"/>
+  <rect x="10" y="68" width="48" height="60" rx="6" fill="#B5D4F4"/>
+  <path d="M10 68 q12 -4 24 0 t24 0" fill="none" stroke="#85B7EB" stroke-width="2"/>
+  <rect x="14" y="34" width="40" height="10" rx="3" fill="#5F5E5A"/>
+  <rect x="24" y="108" width="20" height="16" rx="4" fill="#444441"/>
+  <path d="M34 108 V20 q0 -8 8 -8 H96 q8 0 8 8 V44" fill="none" stroke="#888780" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 106 V20 q0 -8 8 -8 H96 q8 0 8 8 V44" fill="none" stroke="#378ADD" stroke-width="2" stroke-dasharray="4 8" class="a-flow-up"/>
+  <path class="a-drip" d="M104 50 c-3 5 -4 7 -4 9 a4 4 0 0 0 8 0 c0 -2 -1 -4 -4 -9z" fill="#378ADD"/>
+  <path class="a-drip" d="M104 50 c-3 5 -4 7 -4 9 a4 4 0 0 0 8 0 c0 -2 -1 -4 -4 -9z" fill="#378ADD" style="animation-delay:-.6s"/>
+  <rect x="74" y="96" width="54" height="36" rx="3" fill="#E6F1FB"/>
+  <path d="M74 96 q7 -3 14 0 t14 0 t14 0 t12 0" fill="none" stroke="#378ADD" stroke-width="2"/>
+  <ellipse class="a-ripple" cx="104" cy="97" rx="10" ry="2.5" fill="none" stroke="#378ADD" stroke-width="1.5"/>
+  <rect x="118" y="84" width="6" height="22" rx="2" fill="#5F5E5A"/>
+  <rect x="114" y="98" width="10" height="6" rx="2" fill="#EF9F27"/>
+</svg>

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Something went wrong · ReefBerry</title>
+  <link rel="stylesheet" href="/static/css/app.css?v={{ version }}">
+</head>
+<body class="narrow">
+  <main class="page">
+    <section class="card">
+      <h1>{{ "Page not found" if status == 404 else "That didn't work" }}</h1>
+      <p>{{ message }}</p>
+      <p><a class="btn" href="/">Go to the dashboard</a></p>
+    </section>
+  </main>
+</body>
+</html>

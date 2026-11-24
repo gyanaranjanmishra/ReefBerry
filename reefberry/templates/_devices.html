@@ -1,0 +1,91 @@
+<div class="stack-lg">
+  <details class="panel" {% if not kasa_username %}open{% endif %}>
+    <summary><strong>TP-Link account</strong> <span class="muted">needed for plugs with newer firmware</span></summary>
+    <p class="muted">Some Kasa and Tapo plugs only allow local control after a login with your TP-Link (Kasa/Tapo app) account. It is stored only on this Pi and is used to talk to your plugs on your home network.</p>
+    <form method="post" action="/devices/credentials" class="grid-2">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="back" value="{{ back }}">
+      <label>TP-Link email
+        <input id="kasa_username" name="kasa_username" type="email" value="{{ kasa_username }}" autocomplete="off">
+      </label>
+      <label>TP-Link password
+        <input id="kasa_password" name="kasa_password" type="password" autocomplete="off" placeholder="{{ 'Saved, leave blank to keep' if has_kasa_password else '' }}">
+      </label>
+      <div class="row">
+        <button class="btn" type="submit">Save login</button>
+        {% if kasa_username %}<button class="btn ghost" type="submit" name="clear" value="1">Remove</button>{% endif %}
+      </div>
+    </form>
+  </details>
+
+  <form method="post" action="/devices/scan" class="panel scan" data-busy="Scanning your network…">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="back" value="{{ back }}">
+    <div>
+      <strong>Find plugs and power strips</strong>
+      <p class="muted">Looks for Kasa and Tapo devices on the Pi's network. Takes about 10 seconds. Nothing gets switched.</p>
+    </div>
+    <label>Also check these IP addresses <small class="muted">optional, comma-separated</small>
+      <input id="hosts" name="hosts" placeholder="192.168.1.50" inputmode="decimal">
+    </label>
+    <button class="btn primary" type="submit">Scan network</button>
+  </form>
+
+  {% if devices %}
+  <form method="post" action="/devices/save" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="back" value="{{ back }}">
+    {% for d in devices %}
+    <fieldset class="device {% if d.hidden %}is-hidden{% endif %}">
+      <legend>
+        <span class="device-name">{{ d.alias or "Unnamed device" }}</span>
+        <span class="muted">{{ d.model or "Unknown model" }} · {{ d.host }}{% if d.firmware %} · fw {{ d.firmware.split(" ")[0] }}{% endif %}</span>
+      </legend>
+      {% if d.needs_auth %}
+      <p class="flash flash-warn">This device needs your TP-Link login before its outlets can be read. Add it above, then scan again.</p>
+      {% endif %}
+      <label class="check">
+        <input type="checkbox" name="devhide__{{ d.id }}" value="1" {% if d.hidden %}checked{% endif %}>
+        Hide this whole device from the dashboard <small class="muted">(for plugs that aren't on the reef)</small>
+      </label>
+      {% if d.outlets %}
+      <div class="outlet-table" role="table" aria-label="Outlets on {{ d.alias }}">
+        <div class="outlet-head" role="row">
+          <span role="columnheader">#</span><span role="columnheader">Name on dashboard</span><span role="columnheader">Equipment type</span><span role="columnheader">Icon</span>
+          <span role="columnheader">1-hour off alert</span><span role="columnheader">Hide</span>
+        </div>
+        {% for o in d.outlets %}
+        <div class="outlet-row" role="row">
+          <span class="idx" role="cell">{{ o.idx + 1 }}</span>
+          <label role="cell"><span class="sr">Name</span>
+            <input id="name__{{ o.id }}" name="name__{{ o.id }}" value="{{ o.display_name }}" maxlength="40">
+            {% if o.kasa_alias and o.kasa_alias != o.display_name %}<small class="muted">Kasa: {{ o.kasa_alias }}</small>{% endif %}
+          </label>
+          <label role="cell"><span class="sr">Equipment type</span>
+            <select id="role__{{ o.id }}" name="role__{{ o.id }}">
+              {% for key, label in ROLES.items() %}<option value="{{ key }}" {% if key == o.role %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </label>
+          <label role="cell"><span class="sr">Icon</span>
+            <select id="icon__{{ o.id }}" name="icon__{{ o.id }}">
+              <option value="" {% if not o.icon %}selected{% endif %}>Default</option>
+              {% for n in icon_names() %}<option value="{{ n }}" {% if n == o.icon %}selected{% endif %}>{{ n|replace("-", " ")|replace("_", " ")|capitalize }}</option>{% endfor %}
+            </select>
+          </label>
+          <label class="check" role="cell"><input type="checkbox" name="alert__{{ o.id }}" value="1" {% if o.alert_enabled %}checked{% endif %}><span class="sr">Alert</span><span class="only-narrow">Alert if off 1 h</span></label>
+          <label class="check" role="cell"><input type="checkbox" name="hide__{{ o.id }}" value="1" {% if o.hidden %}checked{% endif %}><span class="sr">Hide</span><span class="only-narrow">Hide</span></label>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </fieldset>
+    {% endfor %}
+    <div class="row">
+      <button class="btn {{ 'primary' if back == '/settings' else '' }}" type="submit">Save outlets</button>
+      {% if back == "/setup/devices" %}<button class="btn primary" type="submit" name="continue" value="1">Save and continue</button>{% endif %}
+    </div>
+  </form>
+  {% else %}
+  <p class="empty">No devices yet. Run a scan to find your plugs and strips.</p>
+  {% endif %}
+</div>

@@ -1,0 +1,15 @@
+#!/bin/sh
+# `reefberry` command for the Pi: runs account tools against the service's data,
+# as the service's own user so file ownership stays correct.
+#   sudo reefberry user add
+#   sudo reefberry user reset-password
+#   sudo reefberry user list
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Run this with sudo, for example:  sudo reefberry user reset-password" >&2
+  exit 1
+fi
+if [ $# -eq 0 ] || [ "$1" = "serve" ]; then
+  echo "The dashboard runs as a background service. Use:  sudo systemctl restart reefberry" >&2
+  exit 1
+fi
+exec runuser -u reefberry -- env REEFBERRY_DATA_DIR=/var/lib/reefberry /opt/reefberry/venv/bin/reefberry "$@"

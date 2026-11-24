@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Power devices{% endblock %}
+{% block content %}
+{% include "_steps.html" %}
+<section class="card">
+  <h1>Power devices</h1>
+  <p class="muted">Find your Kasa or Tapo plugs and strips, then name each outlet and choose what's plugged into it. Hide anything that isn't on the reef.</p>
+  {% include "_devices.html" %}
+</section>
+<p class="row between"><a href="/setup/tank">← Back</a><a href="/setup/alerts">Skip for now →</a></p>
+{% endblock %}

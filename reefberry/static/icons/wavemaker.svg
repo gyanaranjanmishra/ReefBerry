@@ -1,0 +1,21 @@
+<svg viewBox="0 0 170 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect x="2" y="8" width="8" height="114" rx="2" fill="#B5D4F4" opacity=".7"/>
+  <rect x="10" y="44" width="10" height="42" rx="3" fill="#444441"/>
+  <rect x="20" y="40" width="40" height="50" rx="12" fill="#5F5E5A"/>
+  <rect x="26" y="48" width="22" height="4" rx="2" fill="#888780"/>
+  <rect x="26" y="78" width="22" height="4" rx="2" fill="#888780"/>
+  <path d="M60 46 L74 38 V92 L60 84 Z" fill="#444441"/>
+  <rect x="62" y="62" width="14" height="6" rx="2" fill="#2C2C2A"/>
+  <rect class="a-blade" x="76" y="42" width="5" height="23" rx="2.5" fill="#185FA5"/>
+  <rect class="a-blade a-blade-2" x="76" y="65" width="5" height="23" rx="2.5" fill="#378ADD"/>
+  <circle cx="78.5" cy="65" r="4" fill="#0C447C"/>
+  <path d="M74 34 H90 M74 96 H90 M90 34 V96" stroke="#888780" stroke-width="2" fill="none"/>
+  <path d="M84 34 V96" stroke="#888780" stroke-width="1" opacity=".7"/>
+  <g class="a-cone" fill="none" stroke="#378ADD" stroke-width="3" stroke-linecap="round">
+    <path class="a-jet" d="M94 65 H166"/>
+    <path class="a-jet" d="M94 56 L164 38" style="animation-delay:-.15s"/>
+    <path class="a-jet" d="M94 74 L164 92" style="animation-delay:-.3s"/>
+    <path class="a-jet" d="M94 48 L160 18" style="animation-delay:-.4s" opacity=".55"/>
+    <path class="a-jet" d="M94 82 L160 112" style="animation-delay:-.2s" opacity=".55"/>
+  </g>
+</svg>
