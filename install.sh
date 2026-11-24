@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ReefBerry installer for Raspberry Pi OS (Bookworm or newer).
 #
-# First install:   git clone https://github.com/<you>/ReefBerry.git && cd ReefBerry && sudo ./install.sh
+# First install:   git clone https://github.com/gyanaranjanmishra/ReefBerry.git && cd ReefBerry && sudo ./install.sh
 # Update:          cd ReefBerry && git pull && sudo ./install.sh
 # Your data in /var/lib/reefberry is kept.
 #

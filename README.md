@@ -42,15 +42,24 @@ Requirements: Raspberry Pi 3, 4 or 5 with Raspberry Pi OS Bookworm or newer (64-
 on the same network as your smart plugs.
 
 ```bash
-git clone <this repository> reefberry
-cd reefberry
+sudo apt install -y git
+git clone https://github.com/gyanaranjanmishra/ReefBerry.git
+cd ReefBerry
 sudo ./install.sh
 ```
 
-Then open `http://<your-pi-name>.local` (for example `http://raspberrypi.local`) and
-follow the setup wizard. To use another port: `REEFBERRY_PORT=8080 sudo -E ./install.sh`.
+The installer asks you to create your dashboard login. Then open
+`http://<your-pi-name>.local` (for example `http://raspberrypi.local`) and follow the setup wizard. To use another port: `REEFBERRY_PORT=8080 sudo -E ./install.sh`.
 
-Run `sudo ./install.sh` again to update. Your data in `/var/lib/reefberry` is kept.
+To update later:
+
+```bash
+cd ~/ReefBerry
+git pull
+sudo ./install.sh
+```
+
+Your data in `/var/lib/reefberry` is kept.
 
 ### Reaching the dashboard away from home
 
