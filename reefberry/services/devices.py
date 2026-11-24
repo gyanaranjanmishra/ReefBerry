@@ -35,6 +35,14 @@ def save_found_devices(db: Database, found: list[FoundDevice]) -> None:
                     json.dumps(d.conn) if d.conn else None, int(d.needs_auth), now,
                 ),
             )
+            if d.outlets:
+                # Drop outlets this device no longer reports (for example a strip that an
+                # older scan saw as one plug). Only when the scan actually read its outlets.
+                keep = [o.id for o in d.outlets]
+                c.execute(
+                    f"DELETE FROM outlets WHERE device_id = ? AND id NOT IN ({','.join('?' * len(keep))})",
+                    (d.id, *keep),
+                )
             for o in d.outlets:
                 existing = c.execute("SELECT id FROM outlets WHERE id = ?", (o.id,)).fetchone()
                 if existing:

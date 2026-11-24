@@ -156,6 +156,16 @@ class KasaService:
             found.error = "This device needs your TP-Link account login."
         except Exception as e:
             found.error = f"Could not read device: {type(e).__name__}"
+        if found.error is None and _looks_like_unsplit_strip(dev):
+            # Newer (KLAP) firmware: discovery can't tell a strip from a single plug, so
+            # python-kasa builds a plug object with no outlets. Connecting directly reads the
+            # device info first and picks the strip class, which exposes each outlet.
+            try:
+                strip = await asyncio.wait_for(Device.connect(config=dev.config), self.timeout + 4)
+                await _close(dev)
+                dev = strip
+            except Exception as e:
+                found.error = f"Could not read the strip's outlets: {type(e).__name__}"
         found.model = _safe(lambda: dev.model)
         found.alias = _safe(lambda: dev.alias)
         found.mac = _safe(lambda: dev.mac)
@@ -295,6 +305,14 @@ class SimulatedKasa:
 
     async def close(self) -> None:
         pass
+
+
+def _looks_like_unsplit_strip(dev) -> bool:
+    """True for a multi-outlet device that python-kasa opened as a single plug."""
+    if _safe(lambda: list(dev.children), []):
+        return False
+    sys_info = _safe(lambda: dev.sys_info, {}) or {}
+    return isinstance(sys_info, dict) and bool(sys_info.get("children"))
 
 
 def _locked(host: str) -> FoundDevice:
