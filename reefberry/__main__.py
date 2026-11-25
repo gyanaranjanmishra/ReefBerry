@@ -106,12 +106,15 @@ def _cmd_delete(args) -> int:
 
 def _cmd_screen(args) -> int:
     db = _open_db()
-    if args.state in ("on", "off"):
-        db.set_setting("screen_enabled", args.state == "on")
-    on = bool(db.get_setting("screen_enabled", False))
-    print(f"Pi screen view is {'on' if on else 'off'}.")
-    if on:
-        print("A browser on the Pi can open http://localhost/screen without signing in (read-only).")
+    state = "view" if args.state == "on" else args.state
+    if state in ("off", "view", "control"):
+        db.set_settings({"screen_enabled": state != "off", "screen_control": state == "control"})
+    if not db.get_setting("screen_enabled", False):
+        print("Pi screen view is off.")
+    elif db.get_setting("screen_control", False):
+        print("Pi screen view is on, with control: the Pi's own screen can switch outlets and modes.")
+    else:
+        print("Pi screen view is on (view only).")
     return 0
 
 
@@ -132,8 +135,9 @@ def main(argv: list[str] | None = None) -> int:
     p = user_sub.add_parser("delete", help="remove an account")
     p.add_argument("username")
     p.set_defaults(func=_cmd_delete)
-    p = sub.add_parser("screen", help="let a monitor on the Pi show the read-only dashboard")
-    p.add_argument("state", choices=["on", "off", "status"], nargs="?", default="status")
+    p = sub.add_parser("screen", help="let a monitor or touchscreen on the Pi show the dashboard")
+    p.add_argument("state", choices=["off", "view", "control", "on", "status"], nargs="?", default="status",
+                   help="view = look only, control = also switch outlets and modes (touchscreen); on = view")
     p.set_defaults(func=_cmd_screen)
 
     args = parser.parse_args(argv)

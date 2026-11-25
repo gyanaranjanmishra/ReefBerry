@@ -2,7 +2,8 @@
 # Show the ReefBerry dashboard full screen on a monitor plugged into the Pi.
 #
 # Needs Raspberry Pi OS with Desktop. Run as your normal user (not with sudo):
-#   cd ~/ReefBerry && ./deploy/screen-setup.sh
+#   cd ~/ReefBerry && ./deploy/screen-setup.sh              # touchscreen: view and control
+#   cd ~/ReefBerry && ./deploy/screen-setup.sh --view-only  # plain monitor: look only
 # Then reboot. To undo:
 #   ./deploy/screen-setup.sh --remove
 set -euo pipefail
@@ -40,8 +41,13 @@ PORT=${PORT:-80}
 URL="http://localhost/screen"
 [ "$PORT" = "80" ] || URL="http://localhost:$PORT/screen"
 
-say "Letting the Pi's own screen show the dashboard (read-only, no sign-in on the Pi)"
-sudo reefberry screen on
+if [ "${1:-}" = "--view-only" ]; then
+  say "Letting the Pi's own screen show the dashboard (view only)"
+  sudo reefberry screen view
+else
+  say "Letting the Pi's own screen show and control the dashboard (touchscreen)"
+  sudo reefberry screen control
+fi
 
 say "Starting the dashboard automatically on the desktop"
 mkdir -p "$(dirname "$LAUNCHER")" "$(dirname "$AUTOSTART")"

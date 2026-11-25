@@ -41,10 +41,12 @@
 
 <section id="screen" class="card">
   <h2>Pi screen</h2>
-  <p class="muted">Show a read-only dashboard on a monitor plugged into the Pi, without signing in there. Only a browser running on the Pi itself gets this; phones and computers still need to sign in, and nothing can be switched from the screen.</p>
+  <p class="muted">For a monitor or touchscreen plugged into the Pi. Only a browser running on the Pi itself gets this without signing in; phones and computers always sign in. Settings and passwords can't be changed from the Pi screen.</p>
   <form method="post" action="/settings/screen" class="stack">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <label class="check"><input type="checkbox" name="screen_enabled" value="1" {% if screen_enabled %}checked{% endif %}> Allow the Pi's own screen to show the dashboard</label>
+    <label class="check"><input type="radio" name="screen_mode" value="off" {% if screen_mode == "off" %}checked{% endif %}> Off</label>
+    <label class="check"><input type="radio" name="screen_mode" value="view" {% if screen_mode == "view" %}checked{% endif %}> View only <small class="muted">shows the dashboard; nothing can be switched</small></label>
+    <label class="check"><input type="radio" name="screen_mode" value="control" {% if screen_mode == "control" %}checked{% endif %}> View and control <small class="muted">for a touchscreen: switch outlets, feed and water change</small></label>
     <div class="row">
       <button class="btn" type="submit">Save</button>
       <a class="btn ghost" href="/screen">Preview the screen page</a>

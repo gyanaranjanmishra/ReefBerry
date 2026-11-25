@@ -93,6 +93,21 @@ def screen_allowed(request: Request) -> bool:
     return is_local(request) and bool(get_db(request).get_setting("screen_enabled", False))
 
 
+def screen_can_control(request: Request) -> bool:
+    """The owner chose 'view and control' for the Pi's own screen (e.g. a touchscreen)."""
+    return screen_allowed(request) and bool(get_db(request).get_setting("screen_control", False))
+
+
+def require_operator(request: Request) -> dict | None:
+    """For switching outlets and modes: a signed-in user, or the Pi's touchscreen when allowed."""
+    user = current_user(request)
+    if user:
+        return user
+    if screen_can_control(request):
+        return None
+    raise HTTPException(status_code=401, detail="Sign in first.")
+
+
 def require_viewer(request: Request) -> dict | None:
     """For read-only data: a signed-in user, or the Pi's own screen when allowed."""
     user = current_user(request)

@@ -11,8 +11,8 @@ from ..services.devices import visible_outlets
 from .. import __version__
 from ..services.kasa_service import ROLES
 from .common import (
-    Redirect, checked_form, current_user, flash, get_db, is_local, render, require_api_user,
-    require_setup_done, require_viewer, screen_allowed,
+    Redirect, checked_form, current_user, flash, get_db, is_local, render,
+    require_operator, require_setup_done, require_viewer, screen_allowed, screen_can_control,
 )
 
 router = APIRouter()
@@ -97,7 +97,7 @@ async def _json_body(request: Request) -> dict:
 
 @router.post("/api/outlets/{outlet_id}/switch")
 async def api_switch(outlet_id: str, request: Request):
-    require_api_user(request)
+    require_operator(request)
     _check_api_csrf(request)
     body = await _json_body(request)
     if not isinstance(body.get("on"), bool):
@@ -119,7 +119,7 @@ MODE_ACTIONS = {
 
 @router.post("/api/mode/{action}")
 async def api_mode(action: str, request: Request):
-    require_api_user(request)
+    require_operator(request)
     _check_api_csrf(request)
     method = MODE_ACTIONS.get(action)
     if method is None:
@@ -157,6 +157,9 @@ async def settings_automation(request: Request):
 
 
 # ---------- the Pi's own screen ----------
+SCREEN_MODES = {"off": "Off", "view": "View only", "control": "View and control"}
+
+
 @router.get("/screen")
 def screen(request: Request):
     """Read-only, full-screen dashboard for a monitor plugged into the Pi."""
@@ -170,14 +173,20 @@ def screen(request: Request):
     db = get_db(request)
     if not db.get_setting("setup_complete", False):
         raise HTTPException(status_code=503, detail="Finish the setup on another device first.")
-    return render(request, "screen.html", outlets=visible_outlets(db), volume=db.get_setting("tank_volume_l"))
+    control = bool(current_user(request)) or screen_can_control(request)
+    return render(
+        request, "screen.html", outlets=visible_outlets(db), volume=db.get_setting("tank_volume_l"),
+        control=control, automation={k: db.get_setting(k, v) for k, v in DEFAULTS.items()},
+    )
 
 
 @router.post("/settings/screen")
 async def settings_screen(request: Request):
     require_setup_done(request)
     form = await checked_form(request)
-    enabled = bool(form.get("screen_enabled"))
-    get_db(request).set_setting("screen_enabled", enabled)
-    flash(request, "Pi screen view turned on." if enabled else "Pi screen view turned off.")
+    mode = str(form.get("screen_mode", "off"))
+    if mode not in SCREEN_MODES:
+        mode = "off"
+    get_db(request).set_settings({"screen_enabled": mode != "off", "screen_control": mode == "control"})
+    flash(request, f"Pi screen: {SCREEN_MODES[mode].lower()}.")
     return RedirectResponse("/settings#screen", status_code=303)

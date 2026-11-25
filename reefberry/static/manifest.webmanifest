@@ -1,0 +1,16 @@
+{
+  "name": "ReefBerry",
+  "short_name": "ReefBerry",
+  "description": "Reef tank power dashboard",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#081226",
+  "theme_color": "#0a6f78",
+  "icons": [
+    { "src": "/static/img/logo.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/static/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/static/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/static/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

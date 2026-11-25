@@ -1,6 +1,8 @@
+import re
+
 from fastapi.testclient import TestClient
 
-from conftest import create_account, csrf_of
+from conftest import create_account, csrf_of, sign_in
 from reefberry.__main__ import main
 
 
@@ -60,3 +62,57 @@ def test_screen_command(tmp_path, monkeypatch, capsys):
     assert "Pi screen view is on" in capsys.readouterr().out
     assert main(["screen", "off"]) == 0
     assert "Pi screen view is off" in capsys.readouterr().out
+
+
+def test_pi_touchscreen_can_control_when_allowed(client, fake_kasa):
+    _finish_setup(client)
+    client.app.state.db.set_settings({"screen_enabled": True, "screen_control": True})
+    pi = _pi(client)
+    page = pi.get("/screen")
+    assert page.status_code == 200
+    assert "readOnly: false" in page.text and 'data-action="feed-start"' in page.text
+    token = re.search(r'name="csrf-token" content="([^"]+)"', page.text).group(1)
+    headers = {"X-CSRF-Token": token}
+    # Without the page's token nothing happens.
+    assert pi.post("/api/outlets/STRIP1-0/switch", json={"on": False}).status_code in (400, 403)
+    assert pi.post("/api/outlets/STRIP1-0/switch", json={"on": False}, headers=headers).status_code == 200
+    assert fake_kasa.switch_calls
+    assert pi.post("/api/mode/feed-start", headers=headers).status_code == 200
+    # Settings and passwords still need a real sign-in.
+    assert pi.get("/settings", follow_redirects=False).status_code == 303
+
+
+def test_control_setting_does_not_reach_other_devices(client, fake_kasa):
+    _finish_setup(client)
+    client.app.state.db.set_settings({"screen_enabled": True, "screen_control": True})
+    assert client.post("/api/outlets/STRIP1-0/switch", json={"on": False}).status_code == 401
+    assert client.post("/api/mode/feed-start").status_code == 401
+    assert fake_kasa.switch_calls == []
+
+
+def test_screen_mode_setting(client):
+    _finish_setup(client)
+    sign_in(client)
+    db = client.app.state.db
+    for mode, enabled, control in (("control", True, True), ("view", True, False), ("off", False, False)):
+        page = client.get("/settings")
+        assert page.status_code == 200
+        client.post("/settings/screen", data={"csrf": csrf_of(page.text), "screen_mode": mode})
+        assert db.get_setting("screen_enabled", False) is enabled
+        assert db.get_setting("screen_control", False) is control
+
+
+def test_screen_command_modes(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("REEFBERRY_DATA_DIR", str(tmp_path))
+    assert main(["screen", "control"]) == 0
+    assert "with control" in capsys.readouterr().out
+    assert main(["screen", "view"]) == 0
+    assert "view only" in capsys.readouterr().out
+
+
+def test_logo_and_manifest_are_served(client):
+    assert client.get("/static/img/logo.svg").status_code == 200
+    m = client.get("/static/manifest.webmanifest")
+    assert m.status_code == 200 and m.json()["name"] == "ReefBerry"
+    for icon in m.json()["icons"]:
+        assert client.get(icon["src"]).status_code == 200

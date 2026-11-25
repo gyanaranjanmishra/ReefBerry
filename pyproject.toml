@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reefberry"
-version = "0.2.1"
+version = "0.3.0"
 description = "A reef aquarium dashboard for the Raspberry Pi: Kasa power control, water parameters, ICP dosing and pH/ORP."
 readme = "README.md"
 license = "MIT"

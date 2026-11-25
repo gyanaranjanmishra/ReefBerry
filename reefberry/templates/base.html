@@ -4,16 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0a6f78">
-  {% if user %}<meta name="csrf-token" content="{{ csrf }}">{% endif %}
+  {% if user or control %}<meta name="csrf-token" content="{{ csrf }}">{% endif %}
   <title>{% block title %}{{ tank_name }}{% endblock %} · ReefBerry</title>
-  <link rel="icon" href="/static/img/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="/static/img/logo.svg?v={{ version }}" type="image/svg+xml">
+  <link rel="icon" href="/static/img/icon-192.png?v={{ version }}" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png?v={{ version }}">
+  <link rel="manifest" href="/static/manifest.webmanifest">
   <link rel="stylesheet" href="/static/css/app.css?v={{ version }}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
   {% include "_icons.html" %}
   <header class="topbar">
     <a class="brand" href="/">
-      <svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg>
+      <img class="brand-mark" src="/static/img/logo.svg?v={{ version }}" alt="">
       <span>ReefBerry</span>
     </a>
     {% block nav %}

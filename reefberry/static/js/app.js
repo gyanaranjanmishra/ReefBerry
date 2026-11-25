@@ -81,7 +81,10 @@
         headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf, Accept: "application/json" },
         body: JSON.stringify(body || {})
       }).then(function (r) {
-        if (r.status === 401) { window.location = "/login?next=/"; throw new Error("Signed out."); }
+        if (r.status === 401) {
+          if (opts.screen) throw new Error("Control from this screen is turned off (Settings → Pi screen).");
+          window.location = "/login?next=/"; throw new Error("Signed out.");
+        }
         return r.json().catch(function () { return {}; }).then(function (data) {
           if (!r.ok) throw new Error(data.detail || "Something went wrong (" + r.status + ").");
           return data;
@@ -151,14 +154,14 @@
       fetch("/api/outlets", { headers: { Accept: "application/json" }, credentials: "same-origin" })
         .then(function (r) {
           if (r.status === 401) {
-            if (opts.readOnly) throw new Error("The Pi screen view is turned off (sudo reefberry screen on).");
+            if (opts.screen) throw new Error("The Pi screen view is turned off (sudo reefberry screen on).");
             window.location = "/login?next=/"; throw new Error("Signed out.");
           }
           return r.json();
         })
         .then(render)
         .catch(function (e) {
-          stamp.textContent = opts.readOnly && e.message.indexOf("screen") > -1 ? e.message : "Can't reach the Pi right now. Retrying…";
+          stamp.textContent = opts.screen && e.message.indexOf("screen") > -1 ? e.message : "Can't reach the Pi right now. Retrying…";
         })
         .finally(function () { running = false; });
     }

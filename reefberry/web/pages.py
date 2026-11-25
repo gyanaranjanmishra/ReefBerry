@@ -41,7 +41,8 @@ def settings_page(request: Request):
         has_kasa_password=bool(db.get_setting("kasa_password")),
         alerts=alert_settings_view(db), presets=SMTP_PRESETS, back="/settings",
         automation={k: db.get_setting(k, v) for k, v in AUTOMATION_DEFAULTS.items()},
-        screen_enabled=bool(db.get_setting("screen_enabled", False)),
+        screen_mode=("control" if db.get_setting("screen_control", False) else "view")
+        if db.get_setting("screen_enabled", False) else "off",
     )
 
 

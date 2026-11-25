@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Screen{% endblock %}
-{% block body_class %}screen{% endblock %}
+{% block body_class %}screen{% if control %} screen-touch{% endif %}{% endblock %}
 {% block content %}
 <header class="page-head">
   <div>
@@ -15,12 +15,25 @@
 
 <p class="flash flash-warn" id="sim-note" hidden>Simulation mode: these are pretend plugs.</p>
 
-<section class="modes" id="modes" aria-label="Mode">
+<section class="modes" id="modes" aria-label="Mode"
+  data-feed-min="{{ automation.feed_minutes }}" data-rule-min="{{ automation.return_restart_delay_min }}">
+  {% if control %}
+  <div class="mode-bar" data-show="normal">
+    <button class="btn mode-btn" type="button" data-action="feed-start">
+      <span class="mode-title">Feed</span><span class="mode-sub">Wavemakers off {{ automation.feed_minutes }} min</span>
+    </button>
+    <button class="btn mode-btn" type="button" data-action="water-change-start">
+      <span class="mode-title">Water change</span><span class="mode-sub">Pumps, skimmer and ATO off</span>
+    </button>
+  </div>
+  {% endif %}
   <div class="mode-banner" data-show="feed" hidden>
     <div><strong>Feeding</strong><span class="muted">Wavemakers back on in <span data-countdown>…</span></span></div>
+    {% if control %}<button class="btn" type="button" data-action="feed-end">End now</button>{% endif %}
   </div>
   <div class="mode-banner mode-wc" data-show="water_change" hidden>
     <div><strong>Water change in progress</strong><span class="muted">Return, wavemakers, skimmer and ATO are off. Off-alerts are paused.</span></div>
+    {% if control %}<button class="btn primary" type="button" data-action="water-change-done">Done, restart</button>{% endif %}
   </div>
 </section>
 
@@ -29,7 +42,7 @@
   <ul class="outlets" id="outlets">
     {% for o in outlets %}
     <li>
-      <div class="outlet state-loading" data-id="{{ o.id }}" data-role="{{ o.role }}" data-name="{{ o.display_name }}">
+      {% if control %}<button type="button" disabled{% else %}<div{% endif %} class="outlet state-loading" data-id="{{ o.id }}" data-role="{{ o.role }}" data-name="{{ o.display_name }}">
         <span class="outlet-art">{{ icon(o.icon or o.role) }}</span>
         <span class="outlet-foot">
           <span class="outlet-text">
@@ -38,7 +51,7 @@
           </span>
           <span class="pill" data-pill>…</span>
         </span>
-      </div>
+      {% if control %}</button>{% else %}</div>{% endif %}
     </li>
     {% endfor %}
   </ul>
@@ -51,5 +64,18 @@
   <h2 id="activity-h">Recent activity</h2>
   <ul id="activity" class="activity-list"><li class="muted">Nothing yet.</li></ul>
 </section>
+
+{% if control %}
+<dialog id="confirm" class="dialog">
+  <form method="dialog">
+    <p data-msg></p>
+    <div class="row">
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" value="ok" data-ok>Turn off</button>
+    </div>
+  </form>
+</dialog>
+<p class="toast" id="toast" role="alert" hidden></p>
+{% endif %}
 {% endblock %}
-{% block scripts %}<script>ReefBerry.dashboard(5000, { readOnly: true, version: "{{ version }}" });</script>{% endblock %}
+{% block scripts %}<script>ReefBerry.dashboard(5000, { screen: true, readOnly: {{ "false" if control else "true" }}, version: "{{ version }}" });</script>{% endblock %}
