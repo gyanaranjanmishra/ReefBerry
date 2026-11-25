@@ -265,4 +265,16 @@ section[aria-labelledby] { display: grid; gap: 12px; }
 .outlet:not(.state-on) .outlet-art svg * { animation-play-state: paused; }
 .outlet:not(.state-on) :is(.a-bub, .a-drip, .a-ripple, .a-beam, .a-jet, .a-heat, .a-shimmer, .a-cone) { visibility: hidden; }
 
+/* ---------- the Pi's own screen (read-only, full screen) ---------- */
+.screen .topbar, .screen .footer { display: none; }
+.screen .page { max-width: none; padding: 20px 28px; }
+.screen .outlets { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.screen .outlet { cursor: default; }
+.screen .outlet:hover { box-shadow: none; }
+.screen .outlet-art { height: 120px; }
+.screen .outlet-art svg { height: 120px; max-width: 170px; }
+.screen-clock { display: grid; justify-items: end; gap: 2px; }
+.screen-clock #clock { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.screen { cursor: none; }
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

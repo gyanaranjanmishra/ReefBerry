@@ -80,6 +80,29 @@ def require_api_user(request: Request) -> dict:
     return user
 
 
+# The Pi's own screen (a browser running on the Pi) may view the read-only screen page
+# without signing in, once the owner turns it on. Other devices always need to sign in.
+LOCAL_ADDRESSES = {"127.0.0.1", "::1"}
+
+
+def is_local(request: Request) -> bool:
+    return bool(request.client and request.client.host in LOCAL_ADDRESSES)
+
+
+def screen_allowed(request: Request) -> bool:
+    return is_local(request) and bool(get_db(request).get_setting("screen_enabled", False))
+
+
+def require_viewer(request: Request) -> dict | None:
+    """For read-only data: a signed-in user, or the Pi's own screen when allowed."""
+    user = current_user(request)
+    if user:
+        return user
+    if screen_allowed(request):
+        return None
+    raise HTTPException(status_code=401, detail="Sign in first.")
+
+
 async def checked_form(request: Request) -> FormData:
     form = await request.form()
     if not csrf_ok(request, form.get("csrf")):

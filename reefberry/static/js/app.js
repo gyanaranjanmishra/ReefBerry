@@ -55,7 +55,8 @@
     el.setAttribute("aria-label", o.name + ", " + pill.textContent + ". " + (o.is_on ? "Tap to turn off" : "Tap to turn on"));
   }
 
-  function dashboard(intervalMs) {
+  function dashboard(intervalMs, opts) {
+    opts = opts || {};
     var list = document.getElementById("outlets");
     var stamp = document.getElementById("updated");
     var modes = document.getElementById("modes");
@@ -64,6 +65,7 @@
     var dialog = document.getElementById("confirm");
     var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content;
     var ruleMin = modes.dataset.ruleMin;
+    var clock = document.getElementById("clock");
     var feedEnds = null, clockSkew = 0, running = false, toastTimer = null;
 
     function showToast(msg) {
@@ -109,6 +111,8 @@
     function render(data) {
       document.getElementById("sim-note").hidden = !data.simulated;
       clockSkew = data.now - Date.now() / 1000;
+      // The Pi screen runs for weeks: pick up new versions after an update.
+      if (opts.version && data.version && data.version !== opts.version) { window.location.reload(); return; }
       if (list && data.ready) {
         data.outlets.forEach(function (o) {
           var el = list.querySelector('[data-id="' + CSS.escape(o.id) + '"]');
@@ -146,17 +150,22 @@
       running = true;
       fetch("/api/outlets", { headers: { Accept: "application/json" }, credentials: "same-origin" })
         .then(function (r) {
-          if (r.status === 401) { window.location = "/login?next=/"; throw new Error("Signed out."); }
+          if (r.status === 401) {
+            if (opts.readOnly) throw new Error("The Pi screen view is turned off (sudo reefberry screen on).");
+            window.location = "/login?next=/"; throw new Error("Signed out.");
+          }
           return r.json();
         })
         .then(render)
-        .catch(function () { stamp.textContent = "Can't reach the Pi right now. Retrying…"; })
+        .catch(function (e) {
+          stamp.textContent = opts.readOnly && e.message.indexOf("screen") > -1 ? e.message : "Can't reach the Pi right now. Retrying…";
+        })
         .finally(function () { running = false; });
     }
 
     function refreshNow() { running = false; tick(); }
 
-    if (list) {
+    if (list && !opts.readOnly) {
       list.addEventListener("click", function (ev) {
         var el = ev.target.closest(".outlet");
         if (!el || el.disabled) return;
@@ -183,7 +192,7 @@
       });
     }
 
-    modes.addEventListener("click", function (ev) {
+    if (!opts.readOnly) modes.addEventListener("click", function (ev) {
       var btn = ev.target.closest("[data-action]");
       if (!btn) return;
       var action = btn.dataset.action;
@@ -201,9 +210,14 @@
       });
     });
 
+    function updateClock() {
+      if (clock) clock.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
     tick();
+    updateClock();
     setInterval(tick, intervalMs);
-    setInterval(updateCountdown, 1000);
+    setInterval(function () { updateCountdown(); updateClock(); }, 1000);
     document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
   }
 

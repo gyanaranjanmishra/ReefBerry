@@ -8,8 +8,12 @@ from fastapi.responses import RedirectResponse
 from ..security import csrf_ok
 from ..services.controller import DEFAULTS, HOLD_REASONS, LIMITS, ControlError, Controller
 from ..services.devices import visible_outlets
+from .. import __version__
 from ..services.kasa_service import ROLES
-from .common import checked_form, flash, get_db, require_api_user, require_setup_done
+from .common import (
+    Redirect, checked_form, current_user, flash, get_db, is_local, render, require_api_user,
+    require_setup_done, require_viewer, screen_allowed,
+)
 
 router = APIRouter()
 
@@ -48,7 +52,7 @@ def _recent_events(request: Request, names: dict[str, str], limit: int = 8) -> l
 
 @router.get("/api/outlets")
 async def api_outlets(request: Request):
-    require_api_user(request)
+    require_viewer(request)
     ctrl = get_controller(request)
     await ctrl.ensure_fresh()
     view = ctrl.view()
@@ -74,6 +78,7 @@ async def api_outlets(request: Request):
         "now": view["now"],
         "ready": view["ready"],
         "simulated": view["simulated"],
+        "version": __version__,
         "mode": view["mode"],
         "outlets": outlets,
         "events": _recent_events(request, names),
@@ -149,3 +154,30 @@ async def settings_automation(request: Request):
         get_db(request).set_settings(values)
         flash(request, "Automation times saved.")
     return RedirectResponse("/settings#automation", status_code=303)
+
+
+# ---------- the Pi's own screen ----------
+@router.get("/screen")
+def screen(request: Request):
+    """Read-only, full-screen dashboard for a monitor plugged into the Pi."""
+    if not current_user(request) and not screen_allowed(request):
+        if is_local(request):
+            raise HTTPException(
+                status_code=403,
+                detail="The Pi screen view is turned off. Turn it on with:  sudo reefberry screen on",
+            )
+        raise Redirect("/login?next=/screen")
+    db = get_db(request)
+    if not db.get_setting("setup_complete", False):
+        raise HTTPException(status_code=503, detail="Finish the setup on another device first.")
+    return render(request, "screen.html", outlets=visible_outlets(db), volume=db.get_setting("tank_volume_l"))
+
+
+@router.post("/settings/screen")
+async def settings_screen(request: Request):
+    require_setup_done(request)
+    form = await checked_form(request)
+    enabled = bool(form.get("screen_enabled"))
+    get_db(request).set_setting("screen_enabled", enabled)
+    flash(request, "Pi screen view turned on." if enabled else "Pi screen view turned off.")
+    return RedirectResponse("/settings#screen", status_code=303)

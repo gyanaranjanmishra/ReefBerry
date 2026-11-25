@@ -104,6 +104,17 @@ def _cmd_delete(args) -> int:
     return 0
 
 
+def _cmd_screen(args) -> int:
+    db = _open_db()
+    if args.state in ("on", "off"):
+        db.set_setting("screen_enabled", args.state == "on")
+    on = bool(db.get_setting("screen_enabled", False))
+    print(f"Pi screen view is {'on' if on else 'off'}.")
+    if on:
+        print("A browser on the Pi can open http://localhost/screen without signing in (read-only).")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="reefberry", description="ReefBerry reef dashboard")
     sub = parser.add_subparsers(dest="command")
@@ -121,6 +132,9 @@ def main(argv: list[str] | None = None) -> int:
     p = user_sub.add_parser("delete", help="remove an account")
     p.add_argument("username")
     p.set_defaults(func=_cmd_delete)
+    p = sub.add_parser("screen", help="let a monitor on the Pi show the read-only dashboard")
+    p.add_argument("state", choices=["on", "off", "status"], nargs="?", default="status")
+    p.set_defaults(func=_cmd_screen)
 
     args = parser.parse_args(argv)
     if args.command in (None, "serve"):

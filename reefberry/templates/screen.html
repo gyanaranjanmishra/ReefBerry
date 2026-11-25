@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Screen{% endblock %}
+{% block body_class %}screen{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{{ tank_name }}</h1>
+    <p class="muted">{{ "%g"|format(volume) }} L system</p>
+  </div>
+  <div class="screen-clock">
+    <span id="clock" aria-live="off">--:--</span>
+    <span class="muted small" id="updated" aria-live="polite">Reading outlets…</span>
+  </div>
+</header>
+
+<p class="flash flash-warn" id="sim-note" hidden>Simulation mode: these are pretend plugs.</p>
+
+<section class="modes" id="modes" aria-label="Mode">
+  <div class="mode-banner" data-show="feed" hidden>
+    <div><strong>Feeding</strong><span class="muted">Wavemakers back on in <span data-countdown>…</span></span></div>
+  </div>
+  <div class="mode-banner mode-wc" data-show="water_change" hidden>
+    <div><strong>Water change in progress</strong><span class="muted">Return, wavemakers, skimmer and ATO are off. Off-alerts are paused.</span></div>
+  </div>
+</section>
+
+<section aria-label="Power">
+  {% if outlets %}
+  <ul class="outlets" id="outlets">
+    {% for o in outlets %}
+    <li>
+      <div class="outlet state-loading" data-id="{{ o.id }}" data-role="{{ o.role }}" data-name="{{ o.display_name }}">
+        <span class="outlet-art">{{ icon(o.icon or o.role) }}</span>
+        <span class="outlet-foot">
+          <span class="outlet-text">
+            <span class="outlet-name">{{ o.display_name }}</span>
+            <span class="outlet-role muted" data-note>{{ ROLES.get(o.role, "Other") }}</span>
+          </span>
+          <span class="pill" data-pill>…</span>
+        </span>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No outlets to show yet.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="activity-h" class="activity">
+  <h2 id="activity-h">Recent activity</h2>
+  <ul id="activity" class="activity-list"><li class="muted">Nothing yet.</li></ul>
+</section>
+{% endblock %}
+{% block scripts %}<script>ReefBerry.dashboard(5000, { readOnly: true, version: "{{ version }}" });</script>{% endblock %}

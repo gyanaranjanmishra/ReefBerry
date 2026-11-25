@@ -61,6 +61,22 @@ sudo ./install.sh
 
 Your data in `/var/lib/reefberry` is kept.
 
+### Showing the dashboard on a monitor plugged into the Pi
+
+With Raspberry Pi OS **Desktop**, the Pi can show a full-screen, read-only dashboard on its
+own HDMI screen (no keyboard needed):
+
+```bash
+cd ~/ReefBerry
+./deploy/screen-setup.sh
+sudo reboot
+```
+
+This turns on the screen view (`sudo reefberry screen on`), logs in to the desktop at boot,
+stops the screen from blanking and opens the dashboard in Chromium full screen. Only a
+browser running on the Pi itself can view it without signing in, and nothing can be switched
+from it. Undo with `./deploy/screen-setup.sh --remove`.
+
 ### Reaching the dashboard away from home
 
 Install [Tailscale](https://tailscale.com) on the Pi and on your phone. You can then
