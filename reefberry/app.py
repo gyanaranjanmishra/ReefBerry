@@ -18,7 +18,7 @@ from .security import LoginThrottle
 from .services.icons import IconLibrary
 from .services.controller import Controller
 from .services.kasa_service import KasaService, SimulatedKasa
-from .web import auth, control, forms, pages, setup
+from .web import auth, control, forms, icp, pages, params, setup
 from .web.common import TEMPLATES, Redirect
 
 SESSION_DAYS = 30
@@ -74,6 +74,8 @@ def create_app(
     app.include_router(forms.router)
     app.include_router(pages.router)
     app.include_router(control.router)
+    app.include_router(params.router)
+    app.include_router(icp.router)
 
     @app.exception_handler(Redirect)
     async def _redirect(request: Request, exc: Redirect):

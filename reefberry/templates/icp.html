@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}ICP{% endblock %}
+{% macro pill(status) -%}
+  {%- if status == "ok" %}<span class="pill pill-ok">OK</span>
+  {%- elif status == "low" %}<span class="pill pill-low">Low</span>
+  {%- elif status == "high" %}<span class="pill pill-high">High</span>
+  {%- endif %}
+{%- endmacro %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>ICP</h1>
+    <p class="muted">Lab results for every element, and what to dose for your {{ "%g"|format(litres) }} L.</p>
+  </div>
+  <a class="btn ghost" href="/icp/targets">Targets</a>
+</header>
+
+<section class="card" aria-labelledby="import-h">
+  <h2 id="import-h">Add an ICP test</h2>
+  <form method="post" action="/icp/upload" enctype="multipart/form-data" class="row">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="file-pick"><span>Fauna Marin CSV or PDF</span>
+      <input type="file" name="file" accept=".csv,.pdf,text/csv,application/pdf" required></label>
+    <button class="btn primary" type="submit">Read file</button>
+    <a class="btn ghost" href="/icp/new">Type results by hand</a>
+  </form>
+  <p class="muted small">You'll see every value before anything is saved. The CSV export has the most elements; the PDF also has the sampling date.</p>
+</section>
+
+{% if not current %}
+<p class="empty">No ICP tests yet. Add your first report above.</p>
+{% else %}
+
+<section class="stack" aria-labelledby="report-h">
+  <div class="row between">
+    <h2 id="report-h">Test from {{ current.sampled_on }}{% if current.analysis_id %} <small class="muted">· analysis {{ current.analysis_id }}</small>{% endif %}</h2>
+    {% if reports|length > 1 %}
+    <form method="get" action="/icp" class="row">
+      <label class="sr" for="report-pick">Show test</label>
+      <select id="report-pick" name="report" onchange="this.form.submit()">
+        {% for r in reports %}<option value="{{ r.id }}" {% if r.id == current.id %}selected{% endif %}>{{ r.sampled_on }}{% if r.analysis_id %} · {{ r.analysis_id }}{% endif %}</option>{% endfor %}
+      </select>
+      <noscript><button class="btn small" type="submit">Show</button></noscript>
+    </form>
+    {% endif %}
+  </div>
+  <p class="muted">{{ counts.low }} low · {{ counts.high }} high{% if prev %} · compared with {{ prev.sampled_on }}{% endif %}{% if current.note %} · {{ current.note }}{% endif %}</p>
+</section>
+
+<section class="card" id="dosing" aria-labelledby="dosing-h">
+  <h2 id="dosing-h">Dosing for {{ "%g"|format(litres) }} L</h2>
+  {% if salinity_low %}
+  <p class="flash flash-warn" role="note"><strong>Raise salinity first.</strong> Sodium and sulfur are both low, which usually means the salinity is low. Bring salinity up with salt, test again, and only then dose single elements. Raising salinity also raises sulfur, potassium and the other elements.</p>
+  {% endif %}
+  {% if not litres %}
+  <p class="empty">Enter your system volume in <a href="/settings#tank">Settings</a> to see doses.</p>
+  {% elif doses %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr>
+        <th scope="col">Product</th><th scope="col" class="num">Per day</th><th scope="col" class="num">Over</th>
+        <th scope="col" class="num">Total</th><th scope="col"><span class="sr">Log</span></th>
+      </tr></thead>
+      <tbody>
+        {% for d in doses %}
+        <tr>
+          <td>
+            <span class="prio prio-{{ d.el.dose.priority }}" title="Priority {{ d.el.dose.priority }}">{{ d.el.dose.priority }}</span>
+            <strong>{{ d.el.dose.product }}</strong><br>
+            <small class="muted">{{ "n.d." if d.measured == 0 else ("%.*f"|format(d.el.decimals, d.measured)) }} → {{ "%.*f"|format(d.el.decimals, d.target) }} {{ d.el.unit }}</small>
+          </td>
+          <td class="num nowrap"><strong>{{ "%.1f"|format(d.per_day_ml) }} ml</strong></td>
+          <td class="num nowrap">{{ d.days }} day{{ "s" if d.days != 1 }}</td>
+          <td class="num nowrap">{{ "%.1f"|format(d.total_ml) }} ml</td>
+          <td>
+            <form method="post" action="/icp/doses">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <input type="hidden" name="product" value="{{ d.el.dose.product }}">
+              <input type="hidden" name="ml" value="{{ "%.1f"|format(d.per_day_ml) }}">
+              <input type="hidden" name="dosed_on" value="{{ today }}">
+              <input type="hidden" name="report_id" value="{{ current.id }}">
+              <button class="btn ghost small" type="submit" title="Log {{ '%.1f'|format(d.per_day_ml) }} ml as dosed today">Dosed today</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">Same calculation as Fauna Marin's Elementals single-dose calculator: elements below their minimum are brought up to the target, spread over days so no day adds too much. The number is the priority: 1 first. Check the product label before dosing. ReefBerry isn't affiliated with Fauna Marin.</p>
+  {% else %}
+  <p class="empty">Nothing to dose: no element with a product is below its minimum.</p>
+  {% endif %}
+</section>
+
+{% for title, rows in groups %}
+<section class="card" aria-label="{{ title }}">
+  <h2>{{ title }} <small class="muted">({{ rows[0].el.unit }})</small></h2>
+  <div class="table-wrap">
+    <table class="table icp-table">
+      <thead><tr>
+        <th scope="col">Element</th><th scope="col" class="num">Measured</th><th scope="col"><span class="sr">Status</span></th>
+        <th scope="col" class="num">Target range</th>{% if prev %}<th scope="col" class="num">Before</th>{% endif %}
+      </tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td><a href="/icp/element/{{ r.el.sym }}">{{ r.el.name }}</a> <small class="muted">{{ r.el.sym }}</small></td>
+          <td class="num nowrap {% if r.status in ('low', 'high') %}val-out{% endif %}">{{ r.value }}</td>
+          <td>{{ pill(r.status) }}</td>
+          <td class="num nowrap muted">{{ r.range }}</td>
+          {% if prev %}<td class="num nowrap muted">{{ r.prev }}{% if r.trend == "up" %} <span aria-label="went up">↑</span>{% elif r.trend == "down" %} <span aria-label="went down">↓</span>{% endif %}</td>{% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endfor %}
+
+<section class="card" id="dose-log" aria-labelledby="log-h">
+  <h2 id="log-h">Dosing log</h2>
+  <form method="post" action="/icp/doses" class="dose-form">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Product <input name="product" list="products" maxlength="60" required></label>
+    <datalist id="products">{% for d in doses %}<option value="{{ d.el.dose.product }}">{% endfor %}</datalist>
+    <label>ml <input name="ml" inputmode="decimal" required></label>
+    <label>Day <input type="date" name="dosed_on" value="{{ today }}" max="{{ today }}" required></label>
+    <button class="btn" type="submit">Add</button>
+  </form>
+  {% if dose_log %}
+  <div class="table-wrap">
+    <table class="table">
+      <tbody>
+        {% for d in dose_log %}
+        <tr>
+          <td class="nowrap">{{ d.dosed_on }}</td><td>{{ d.product }}</td><td class="num nowrap">{{ "%g"|format(d.ml) }} ml</td>
+          <td><form method="post" action="/icp/doses/{{ d.id }}/delete">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn ghost small" type="submit">Remove</button></form></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted small">Nothing logged yet. Use “Dosed today” above or add a dose here.</p>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="reports-h">
+  <h2 id="reports-h">All ICP tests</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <tbody>
+        {% for r in reports %}
+        <tr>
+          <td class="nowrap"><a href="/icp?report={{ r.id }}">{{ r.sampled_on }}</a></td>
+          <td>{{ r.lab }}{% if r.analysis_id %} · {{ r.analysis_id }}{% endif %}</td>
+          <td class="num">{{ r.n }} elements</td>
+          <td><form method="post" action="/icp/{{ r.id }}/delete" data-confirm="Delete the ICP test from {{ r.sampled_on }}? This can't be undone.">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn ghost small" type="submit">Delete</button></form></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script>ReefBerry.confirmForms();</script>{% endblock %}

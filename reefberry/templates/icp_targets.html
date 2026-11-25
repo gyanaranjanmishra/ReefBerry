@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}ICP targets{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <p class="small"><a href="/icp">← ICP</a></p>
+    <h1>ICP targets</h1>
+    <p class="muted">Below the minimum an element is marked Low and gets a dose that brings it up to the target. Above the maximum it's marked High. Empty means no limit. The defaults come from the Fauna Marin report.</p>
+  </div>
+</header>
+<form method="post" action="/icp/targets" class="stack-lg">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  {% for title, rows in groups %}
+  <section class="card">
+    <h2>{{ title }} <small class="muted">({{ rows[0].el.unit }})</small></h2>
+    <div class="table-wrap">
+      <table class="table targets-table">
+        <thead><tr><th scope="col">Element</th><th scope="col">Minimum</th><th scope="col">Target</th><th scope="col">Maximum</th></tr></thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <th scope="row">{{ r.el.name }} <small class="muted">{{ r.el.sym }}</small>{% if r.changed %} <small class="pill">yours</small>{% endif %}</th>
+            {% for k in ("min", "opt", "max") %}
+            <td><input name="{{ k }}_{{ r.el.sym }}" value="{{ r.t[loop.index0] }}" inputmode="decimal" aria-label="{{ r.el.name }} {{ k }}"></td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endfor %}
+  <div class="row">
+    <button class="btn primary" type="submit">Save targets</button>
+    <button class="btn ghost" type="submit" name="reset" value="1" formnovalidate>Reset to Fauna Marin defaults</button>
+  </div>
+</form>
+{% endblock %}

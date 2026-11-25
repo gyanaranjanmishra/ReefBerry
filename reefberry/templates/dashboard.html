@@ -55,6 +55,24 @@
   {% endif %}
 </section>
 
+<section aria-labelledby="tests-h" class="stack">
+  <div class="row between">
+    <h2 id="tests-h">Water</h2>
+    <a href="/parameters" class="small">Add a test</a>
+  </div>
+  <ul class="latest-tests">
+    {% for t in latest_tests %}
+    <li class="lt-{{ t.status or 'none' }}">
+      <a href="/parameters#p-{{ t.param.key }}">
+        <span class="muted small">{{ t.param.name }}</span>
+        <span><span class="lt-value">{{ t.text }}</span> <span class="muted small">{{ t.param.unit }}</span></span>
+        <span class="muted small">{% if t.status == "low" %}Low · {% elif t.status == "high" %}High · {% endif %}{{ t.age }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+
 <section aria-labelledby="activity-h" class="activity">
   <h2 id="activity-h">Recent activity</h2>
   <ul id="activity" class="activity-list"><li class="muted">Nothing yet.</li></ul>

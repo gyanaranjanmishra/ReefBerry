@@ -224,5 +224,14 @@
     document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
   }
 
-  window.ReefBerry = { dashboard: dashboard };
+  // Forms with data-confirm ask before submitting (e.g. deleting a water test).
+  function confirmForms() {
+    document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+      form.addEventListener("submit", function (e) {
+        if (!window.confirm(form.getAttribute("data-confirm"))) e.preventDefault();
+      });
+    });
+  }
+
+  window.ReefBerry = { dashboard: dashboard, confirmForms: confirmForms };
 })();

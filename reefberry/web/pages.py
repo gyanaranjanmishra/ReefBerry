@@ -9,6 +9,7 @@ from ..security import password_problem, verify_password
 from ..services.controller import DEFAULTS as AUTOMATION_DEFAULTS
 from ..services.devices import list_devices, visible_outlets
 from ..services.notify import SMTP_PRESETS
+from ..services.params import latest as latest_tests, list_params
 from ..users import set_password
 from .common import (
     checked_form, flash, get_db, render, require_setup_done, sign_in,
@@ -26,6 +27,7 @@ def dashboard(request: Request):
         request, "dashboard.html",
         outlets=visible_outlets(db), volume=db.get_setting("tank_volume_l"),
         automation={k: db.get_setting(k, v) for k, v in AUTOMATION_DEFAULTS.items()},
+        latest_tests=latest_tests(db),
     )
 
 
@@ -41,6 +43,7 @@ def settings_page(request: Request):
         has_kasa_password=bool(db.get_setting("kasa_password")),
         alerts=alert_settings_view(db), presets=SMTP_PRESETS, back="/settings",
         automation={k: db.get_setting(k, v) for k, v in AUTOMATION_DEFAULTS.items()},
+        params=list_params(db),
         screen_mode=("control" if db.get_setting("screen_control", False) else "view")
         if db.get_setting("screen_enabled", False) else "off",
     )

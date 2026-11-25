@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ el.name }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <p class="small"><a href="/icp">← ICP</a></p>
+    <h1>{{ el.name }} <small class="muted">{{ el.sym }}</small></h1>
+    <p class="muted">{% if range %}Target {{ range }} {{ el.unit }}{% else %}No target set{% endif %}{% if el.dose %} · dosed with {{ el.dose.product }}{% endif %}</p>
+  </div>
+</header>
+<section class="card">
+  {% if rows %}
+  {{ chart }}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Sample</th><th scope="col" class="num">{{ el.unit }}</th><th scope="col"><span class="sr">Status</span></th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td><a href="/icp?report={{ r.report }}">{{ r.date.strftime("%d %b %Y") }}</a></td>
+          <td class="num {% if r.status in ('low', 'high') %}val-out{% endif %}">{{ r.value }}</td>
+          <td>{% if r.status == "low" %}<span class="pill pill-low">Low</span>{% elif r.status == "high" %}<span class="pill pill-high">High</span>{% elif r.status == "ok" %}<span class="pill pill-ok">OK</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">No ICP test has measured {{ el.name|lower }} yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Parameters{% endblock %}
+{% macro status_pill(status) -%}
+  {%- if status == "ok" %}<span class="pill pill-ok">In range</span>
+  {%- elif status == "low" %}<span class="pill pill-low">Low</span>
+  {%- elif status == "high" %}<span class="pill pill-high">High</span>
+  {%- endif %}
+{%- endmacro %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>Parameters</h1>
+    <p class="muted">Your water test results, with the green band you aim for.</p>
+  </div>
+</header>
+
+<section class="card" aria-labelledby="add-h">
+  <h2 id="add-h">Add a test</h2>
+  {% if error %}<p class="flash flash-error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="/parameters" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="param-inputs">
+      {% for p in params %}
+      <label><span>{{ p.name }} <small class="muted">({{ p.unit }})</small></span>
+        <input name="{{ p.key }}" inputmode="decimal" autocomplete="off" value="{{ form.get(p.key, '') }}">
+      </label>
+      {% endfor %}
+    </div>
+    <p class="muted small">Leave a box empty if you didn't test it.</p>
+    <div class="grid-2">
+      <label>Tested on
+        <input type="datetime-local" name="taken_at" value="{{ form.get('taken_at', '') }}" max="{{ max_time }}" required></label>
+      <label><span>Note <small class="muted">(optional)</small></span>
+        <input name="note" maxlength="200" value="{{ form.get('note', '') }}" placeholder="e.g. Hanna checker, new reagent"></label>
+    </div>
+    <div class="row"><button class="btn primary" type="submit">Save test</button></div>
+  </form>
+</section>
+
+<section aria-labelledby="charts-h" class="stack">
+  <div class="row between">
+    <h2 id="charts-h">Trends</h2>
+    <nav class="tabs" aria-label="Time range">
+      {% for k, r in ranges.items() %}
+      <a href="?range={{ k }}#charts-h" {% if k == range_key %}aria-current="page"{% endif %}>{{ r[0] }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+  <div class="param-cards">
+    {% for c in cards %}
+    <article class="card param-card" aria-labelledby="p-{{ c.param.key }}">
+      <div class="row between">
+        <h3 id="p-{{ c.param.key }}">{{ c.param.name }}</h3>
+        {{ status_pill(c.status) }}
+      </div>
+      {% if c.value is not none %}
+      <p class="param-value">
+        <strong>{{ c.text }}</strong> <span class="muted">{{ c.param.unit }}</span>
+        {% if c.change is not none and c.change|round(c.param.decimals) != 0 %}
+        <span class="param-change muted small">{{ "+" if c.change > 0 else "−" }}{{ c.param.fmt(c.change|abs) }} since last</span>
+        {% endif %}
+      </p>
+      <p class="muted small">{{ c.age|capitalize }} · green band {{ c.param.band_text }}</p>
+      {% if c.count %}
+      {{ c.chart }}
+      {% else %}
+      <p class="empty small">No results in this time range.</p>
+      {% endif %}
+      {% else %}
+      <p class="muted small">Green band {{ c.param.band_text }}</p>
+      <p class="empty small">No tests yet.</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  <p class="muted small">Change the green bands in <a href="/settings#parameters">Settings</a>.</p>
+</section>
+
+<section class="card" id="tests" aria-labelledby="tests-h">
+  <h2 id="tests-h">Recent tests</h2>
+  {% if tests %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          {% for p in params %}<th scope="col" class="num">{{ p.name }}<br><small class="muted">{{ p.unit }}</small></th>{% endfor %}
+          <th scope="col">Note</th>
+          <th scope="col"><span class="sr">Delete</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tests %}
+        <tr>
+          <td class="nowrap">{{ t.taken_at.strftime("%d %b %Y, %H:%M") }}</td>
+          {% for p in params %}
+          {% set v = t["values"].get(p.key) %}
+          <td class="num {% if p.status(v) in ('low', 'high') %}val-out{% endif %}">{{ p.fmt(v) }}</td>
+          {% endfor %}
+          <td>{{ t.note }}</td>
+          <td>
+            <form method="post" action="/parameters/{{ t.id }}/delete" data-confirm="Delete the test from {{ t.taken_at.strftime('%d %b %Y, %H:%M') }}?">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <button class="btn ghost small" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">No tests yet. Add your first one above.</p>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script>ReefBerry.confirmForms();</script>{% endblock %}

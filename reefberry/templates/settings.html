@@ -3,7 +3,7 @@
 {% block content %}
 <header class="page-head"><h1>Settings</h1></header>
 <nav class="tabs" aria-label="Settings sections">
-  <a href="#tank">Tank</a><a href="#devices">Power devices</a><a href="#automation">Automation</a><a href="#screen">Pi screen</a><a href="#alerts">Alerts</a><a href="#account">Account</a>
+  <a href="#tank">Tank</a><a href="#devices">Power devices</a><a href="#parameters">Green bands</a><a href="#automation">Automation</a><a href="#screen">Pi screen</a><a href="#alerts">Alerts</a><a href="#account">Account</a>
 </nav>
 
 <section id="tank" class="card">
@@ -18,6 +18,24 @@
 <section id="devices" class="card">
   <h2>Power devices</h2>
   {% include "_devices.html" %}
+</section>
+
+<section id="parameters" class="card">
+  <h2>Green bands</h2>
+  <p class="muted">The range you aim for with each parameter. It's shaded green on the charts, and results outside it are marked Low or High. Leave a box empty for no limit on that side.</p>
+  <form method="post" action="/settings/parameters" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="band-grid">
+      {% for p in params %}
+      <fieldset class="band-row">
+        <legend>{{ p.name }} <small class="muted">({{ p.unit }})</small></legend>
+        <label>From <input name="{{ p.key }}_low" inputmode="decimal" value="{{ p.fmt(p.low) if p.low is not none else '' }}"></label>
+        <label>To <input name="{{ p.key }}_high" inputmode="decimal" value="{{ p.fmt(p.high) if p.high is not none else '' }}"></label>
+      </fieldset>
+      {% endfor %}
+    </div>
+    <div class="row"><button class="btn primary" type="submit">Save green bands</button></div>
+  </form>
 </section>
 
 <section id="automation" class="card">

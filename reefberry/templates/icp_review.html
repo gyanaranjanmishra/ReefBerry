@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Check ICP results{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{% if meta.source == "hand" %}Enter ICP results{% else %}Check before saving{% endif %}</h1>
+    <p class="muted">
+      {% if meta.source == "hand" %}Type the values from your lab report. Leave a box empty if it wasn't measured; write n.d. if it wasn't detected.
+      {% else %}Read from {{ meta.filename or "your file" }}. Fix anything that's wrong, then save. Nothing is saved yet.{% endif %}
+    </p>
+  </div>
+</header>
+
+{% if error %}<p class="flash flash-error" role="alert">{{ error }}</p>{% endif %}
+{% if meta.source == "csv" %}<p class="flash flash-warn">The CSV has the analysis date, not the day the sample was taken. Change the date below if you know it.</p>{% endif %}
+
+<form method="post" action="/icp/save" class="stack-lg">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <input type="hidden" name="source" value="{{ meta.source }}">
+  <input type="hidden" name="filename" value="{{ meta.filename }}">
+  <section class="card">
+    <div class="grid-3">
+      <label>Sample taken on <input type="date" name="sampled_on" value="{{ meta.sampled_on }}" max="{{ today }}" required></label>
+      <label>Lab <input name="lab" maxlength="40" value="{{ meta.lab }}" placeholder="e.g. Fauna Marin"></label>
+      <label>Analysis ID <input name="analysis_id" maxlength="40" value="{{ meta.analysis_id }}"></label>
+    </div>
+    <label>Note <small class="muted">(optional)</small> <input name="note" maxlength="200" value="{{ meta.note }}"></label>
+  </section>
+
+  {% for title, rows in groups %}
+  <section class="card">
+    <h2>{{ title }} <small class="muted">({{ rows[0].el.unit }})</small></h2>
+    <div class="icp-inputs">
+      {% for r in rows %}
+      <label><span>{{ r.el.name }} <small class="muted">{{ r.el.sym }}</small></span>
+        <input name="v_{{ r.el.sym }}" value="{{ r.value }}" inputmode="decimal" autocomplete="off">
+        {% if r.range %}<small class="muted">target {{ r.range }}</small>{% endif %}
+      </label>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <div class="row">
+    <button class="btn primary" type="submit">Save ICP test</button>
+    <a class="btn ghost" href="/icp">Cancel</a>
+  </div>
+</form>
+{% endblock %}

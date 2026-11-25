@@ -29,6 +29,21 @@ from the dashboard, and these automations:
 
 All the times are in Settings → Automation.
 
+**Parameters.** Enter your test results for alkalinity (dKH), calcium, magnesium, nitrate
+and phosphate (ppm). Each has a chart with your green band shaded, over 30 days, 90 days,
+a year or all time, and results outside the band are marked Low or High. The dashboard shows
+the latest result of each. Set the green bands in Settings → Green bands. Values that look
+like typing mistakes (say 4200 ppm calcium) are refused.
+
+**ICP and dosing.** Upload a Fauna Marin ICP report (the CSV export or the PDF), or type
+results from any lab by hand. You see every value before it's saved. Each element is
+compared with its target range and the previous test, and has its own history chart.
+For every element below its minimum, ReefBerry works out the dose for your system volume
+with the same formula as Fauna Marin's Elementals single-dose calculator: total ml, how
+many days to spread it over, and ml per day, most urgent first. When sodium and sulfur are
+both low it tells you to raise salinity first. Targets can be changed (ICP → Targets), and
+a dosing log records what you dosed. The factors are in `reefberry/services/icp_elements.py`.
+
 The strips keep their state if the Pi stops, so nothing changes on the tank. When ReefBerry
 starts again it reads the strips, finishes any restart steps that came due while it was
 down, and keeps the return pump rule. It never turns on an outlet that nobody asked for.
@@ -112,7 +127,7 @@ is off. Icons that contain scripts or event handlers are ignored.
 
 ## Credits
 
-- Dosing calculations will follow the
+- Dosing calculations follow the
   [Fauna Marin Elementals calculator](https://lab.faunamarin.de/en/calc-elementals-once).
   ReefBerry is an independent project and isn't affiliated with or endorsed by Fauna Marin.
 - Smart plug control uses [python-kasa](https://github.com/python-kasa/python-kasa).
